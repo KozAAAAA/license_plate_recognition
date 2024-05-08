@@ -1,1 +1,1 @@
-# registration_plate_detection
+# License Plate Recognition
