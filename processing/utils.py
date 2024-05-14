@@ -2,10 +2,16 @@ import cv2
 from cv2.gapi import bilateralFilter
 import numpy as np
 import imutils
+from math import sqrt
 
 IMG_SIZE = (800, 800)
+
+PLATE_WIDTH = 520 - 7*2 - 40
+PLATE_HEIGHT = 114 - 7*2
+
 MIN_WIDTH_PLATE_TO_IMAGE_RATIO = 0.3
-PLATE_ASPECT_RATIO = 520 / 114
+MAX_WIDTH_DIFFERENCE_RATIO = 0.1
+
 LOWER_WHITE = np.array([0, 120, 0])
 UPPER_WHITE = np.array([255, 255, 255])
 
@@ -20,14 +26,11 @@ def get_license_plate(image: np.ndarray) -> np.ndarray:
     bilateral = cv2.bilateralFilter(image, 3, 20, 20)
     hsl = cv2.cvtColor(bilateral, cv2.COLOR_BGR2HLS)
     mask = cv2.inRange(hsl, LOWER_WHITE, UPPER_WHITE)
-    
-    # return mask
 
     contours = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     contours = imutils.grab_contours(contours)
     contours = sorted(contours, key=cv2.contourArea, reverse=True)[:10]
     
-    # return eroded
     for contour in contours:
         x, y, w, h = cv2.boundingRect(contour)
         width_plate_to_image_ratio = w / image.shape[1]
@@ -37,17 +40,18 @@ def get_license_plate(image: np.ndarray) -> np.ndarray:
             
             corners = _sort_corners(corners)
             left_top, left_bottom, right_top, right_bottom = corners
-            cv2.circle(image, left_top, 5, (0, 255, 0), -1)
-            cv2.circle(image, left_bottom, 5, (0, 0, 255), -1)
-            cv2.circle(image, right_top, 5, (255, 0, 0), -1)
-            cv2.circle(image, right_bottom, 5, (255, 255, 0), -1)
 
-            # accept only with proper aspect ratio (add to list and later decide)
-            license_plate = image[y : y + h, x : x + w]
-            return license_plate
+            pts1 = np.float32([left_top, left_bottom, right_top, right_bottom])
+            pts2 = np.float32([[0, PLATE_HEIGHT], [0, 0], [PLATE_WIDTH, 0], [PLATE_WIDTH, PLATE_HEIGHT]])
+            matrix = cv2.getPerspectiveTransform(pts1, pts2)
+
+            image = cv2.warpPerspective(image, matrix, (PLATE_WIDTH, PLATE_HEIGHT))
+            return image
     
     return None
 
+def get_license_plate_text(image: np.ndarray):
+    return image
 
 
 def perform_processing(image: np.ndarray) -> str:
@@ -55,14 +59,19 @@ def perform_processing(image: np.ndarray) -> str:
     print(f"\nProcessing {perform_processing.image_count} image")
     image = cv2.resize(image, IMG_SIZE)
     cropped = image[100:700, :] # Kinda cheating lol
+    
     license_plate = get_license_plate(cropped)
+    
     if license_plate is None:
         perform_processing.skipped += 1
         print(f"Skipped {perform_processing.skipped} images")
         return "No license plate found"
+    
+    image = get_license_plate_text(license_plate)
 
-    cv2.imshow("image", license_plate)
+    cv2.imshow("image", image)
     cv2.waitKey(0)
     return "PO12345"
+
 perform_processing.skipped = 0
 perform_processing.image_count = 0
