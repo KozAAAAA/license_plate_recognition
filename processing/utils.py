@@ -7,6 +7,12 @@ IMG_SIZE = (800, 800)
 MIN_WIDTH_PLATE_TO_IMAGE_RATIO = 0.3
 PLATE_ASPECT_RATIO = 520 / 114
 
+def _sort_corners(corners: np.ndarray) -> np.ndarray:
+    corners = sorted(corners, key=lambda x: x[0][0])
+    left_top, left_bottom = sorted(corners[:2], key=lambda x: x[0][1])
+    right_top, right_bottom = sorted(corners[2:], key=lambda x: x[0][1])
+    corners = np.array([left_bottom, left_top, right_top, right_bottom])
+    return corners
 
 def get_license_plate(image: np.ndarray) -> np.ndarray:
     grey = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -22,10 +28,10 @@ def get_license_plate(image: np.ndarray) -> np.ndarray:
         if width_plate_to_image_ratio > MIN_WIDTH_PLATE_TO_IMAGE_RATIO:
             peri = cv2.arcLength(contour, True)
             corners = cv2.approxPolyDP(contour, 0.02 * peri, True)
-            corners = sorted(corners, key=lambda x: x[0][0])
             if len(corners) != 4:
                 continue
 
+            corners = _sort_corners(corners)
             cv2.circle(image, tuple(corners[0][0]), 5, (0, 255, 0), -1)
             cv2.circle(image, tuple(corners[1][0]), 5, (0, 0, 255), -1)
             cv2.circle(image, tuple(corners[2][0]), 5, (255, 0, 0), -1)
