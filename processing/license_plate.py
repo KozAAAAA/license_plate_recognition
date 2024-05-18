@@ -2,14 +2,7 @@ import numpy as np
 import cv2
 import imutils
 
-from processing.config import (
-    Blue,
-    White,
-    Plate,
-    Image,
-    MIN_WIDTH_PLATE_TO_IMAGE_RATIO,
-    MIN_HEIGHT_PLATE_TO_IMAGE_RATIO,
-)
+from processing.config import Blue, White, Plate
 
 
 def sort_corners(corners: np.ndarray, offset: int) -> np.ndarray:
@@ -61,7 +54,6 @@ def get_license_plate(image: np.ndarray):
         peri = cv2.arcLength(contour, True)
         corners = cv2.approxPolyDP(contour, 0.02 * peri, True)
 
-        
         if Plate.MIN_AREA < area < Plate.MAX_AREA and x > min_x and len(corners) == 4:
             pts1 = np.float32(sort_corners(corners, 10))
             pts2 = np.float32(

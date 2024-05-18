@@ -1,7 +1,6 @@
 import numpy as np
 
-MIN_WIDTH_PLATE_TO_IMAGE_RATIO = 0.3
-MIN_HEIGHT_PLATE_TO_IMAGE_RATIO = 0.065
+FONT_CHARS_PATH = "./font"
 
 class Image:
     WIDTH = 800
@@ -17,6 +16,9 @@ class Plate:
 
 
 class Char:
+    WIDTH = 100
+    HEIGHT = 100
+
     MAX_WIDTH = 70
     MIN_HEIGHT = 65
 
