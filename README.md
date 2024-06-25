@@ -1,16 +1,16 @@
-# Rozpoznawanie tablic rejestracyjnych
+# License Plate Recognition
 
-1. Detekcja tablic rejestracyjnych
-    * Znalezienie pozycji x niebieskiego pionowego prostokąta stosując maskę w przestrzeni barw HSV
-    * Wyodrębnienie białych elementów przy pomocy maski w przestrzeni barw HSV
-    * Posortowanie białych elementów w zależności od ich powierzchni i wybranie dziesięciu największych
-    * Zaakceptowanie pierwszego białego elementu, który spełnia warunki powierzchni, pozycji x oraz ilości narożników
-    * Dokonanie transformacji perspektywicznej na wybranym elemencie
+1. License Plate Detection
+    * Find the x-position of the blue vertical rectangle using a mask in the HSV color space.
+    * Extract the white elements using a mask in the HSV color space.
+    * Sort the white elements based on their area and select the ten largest ones.
+    * Accept the first white element that meets the conditions of area, x-position, and number of corners.
+    * Perform a perspective transformation on the selected element.
 
-2. Rozpoznanie znaków
-    * Wykorzystanie adaptacyjnego progowania
-    * Posortowanie znalezionych konturów w zależności od ich powierzchni i wybranie dziesięciu największych
-    * Posortowanie konturów w zależności od ich pozycji x
-    * Wycięcie poszczególnych znaków z obrazu
-    * Porównanie wyciętych znaków ze wzorcem i wybranie tego, którego korelacja jest największa
-    * Dodanie wykrytch znaków do listy
+2. Character Recognition
+    * Use adaptive thresholding.
+    * Sort the found contours based on their area and select the ten largest ones.
+    * Sort the contours based on their x-position.
+    * Extract individual characters from the image.
+    * Compare the extracted characters with the template and select the one with the highest correlation.
+    * Add the detected characters to the list.
